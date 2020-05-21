@@ -1,17 +1,22 @@
 // require env config
 // require('./config/config')
 // module imports
+const path = require('path')
+const http = require('http')
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const helmet = require('helmet')
-const path = require('path')
+const socketIO = require('socket.io')
 
 // local imports
 // const { connectToDB } = require('./database')
 // const BaseRoute = require('./routes')
 const publicPath = path.join(__dirname, '../public')
+
 const app = express()
+const server = http.createServer(app)
+const io = socketIO(server)
 
 const port = process.env.PORT || 3000
     // parse application/x-www-form-urlencoded
@@ -23,9 +28,19 @@ app.use(morgan('combined'))
 app.use(helmet())
 app.use(express.static(publicPath))
     // app.use('/api/v1', BaseRoute)
-app.listen(port, () => {
+
+io.on('connection', client => {
+    // client.on('event', data => { /* … */ });
+    client.on('disconnect', () => {
+        console.log('Disconnected from Client')
+    });
+    console.log('New User Connected')
+})
+
+server.listen(port, () => {
     // connectToDB()
-    console.log(`App listening on port ${port}!`)
+    console.log(`Server running at http://127.0.0.1:${port}/`)
+    console.log(`Server running at http://localhost:${port}/`)
 })
 
 module.exports = { app }
