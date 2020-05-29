@@ -18,7 +18,7 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 5050
     // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 
@@ -31,6 +31,14 @@ app.use(express.static(publicPath))
 
 io.on('connection', client => {
     // client.on('event', data => { /* … */ });
+    client.on('createMessage', data => {
+        console.log({...data, createdAt: new Date().getTime() })
+    });
+    client.emit('newMessage', {
+        from: 'valentine@testing.com',
+        message: 'Hi!, we are testing socket.io',
+        createdAt: new Date().getTime()
+    })
     client.on('disconnect', () => {
         console.log('Disconnected from Client')
     });
