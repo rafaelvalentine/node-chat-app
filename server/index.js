@@ -31,17 +31,43 @@ app.use(express.static(publicPath))
 
 io.on('connection', client => {
     // client.on('event', data => { /* … */ });
-    client.on('createMessage', data => {
-        console.log({...data, createdAt: new Date().getTime() })
-    });
-    client.emit('newMessage', {
-        from: 'valentine@testing.com',
-        message: 'Hi!, we are testing socket.io',
-        createdAt: new Date().getTime()
+    // client.on('event', data => { /* … */ });
+    client.on('new-user', ({ _id, email, username }) => {
+        const message = {
+                _id,
+                email,
+                username,
+                createdAt: new Date().getTime(),
+                message: '',
+                from: 'Admin'
+            }
+            // client.emit('newMessage', {
+            //     from: 'valentine@testing.com',
+            //     message: 'Hi!, we are testing socket.io',
+            //     createdAt: new Date().getTime()
+            // })
+        client.emit('welcome-user', {...message, message: 'Welcome to the Chat App' })
+        client.broadcast.emit('new-user-joined', {...message, message: 'New User Joined the Group' })
     })
+    client.on('createMessage', data => {
+            const message = {
+                    from: data.from,
+                    to: data.to,
+                    message: data.message,
+                    createdAt: new Date().getTime()
+                }
+                // console.log(message)
+                // io.emit('newMessage', message)
+                // client.broadcast.emit('newMessage', message)
+        })
+        // client.emit('newMessage', {
+        //     from: 'valentine@testing.com',
+        //     message: 'Hi!, we are testing socket.io',
+        //     createdAt: new Date().getTime()
+        // })
     client.on('disconnect', () => {
         console.log('Disconnected from Client')
-    });
+    })
     console.log('New User Connected')
 })
 
