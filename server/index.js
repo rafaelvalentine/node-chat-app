@@ -40,9 +40,9 @@ io.on('connection', client => {
             message: '',
             from: 'Admin'
         }
-        client.emit('welcome-user', generateMessage({...message, message: 'Welcome to the Chat App', to: username }))
-        client.broadcast.emit('new-user-joined', generateMessage({...message, message: 'New User Joined the Group' }))
-        callback()
+        client.emit('welcome_user', generateMessage({...message, message: 'Welcome to the Chat App', to: username }))
+        client.broadcast.emit('new_user_joined', generateMessage({...message, message: 'New User Joined the Group' }))
+        callback('this is from the server!')
     })
     client.on('createMessage', (data, callback) => {
             const message = {
@@ -52,7 +52,7 @@ io.on('connection', client => {
                 }
                 // console.log(message)
             io.emit('newMessage', generateMessage(message))
-            callback()
+            callback('this is from the server!')
                 // client.broadcast.emit('newMessage', message)
         })
         // client.emit('newMessage', {
