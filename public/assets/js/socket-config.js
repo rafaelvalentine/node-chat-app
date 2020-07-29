@@ -5,12 +5,15 @@ socket.on('connect', function() {
         //     to: 'valentine@client.io',
         //     message: 'I received your message',
         // })
-    socket.emit('new-user', {
-        _id: Math.random(),
-        email: 'valentine@client.io',
-        username: 'rafaelvalentine,'
-    })
 })
+socket.emit('newUser', {
+    _id: Math.random(),
+    email: 'valentine@client.io',
+    username: 'rafaelvalentine,'
+}, function() {
+    console.log('Admin Acknowledge!')
+})
+
 socket.on('newMessage', function(data) {
     console.log('new-email', data)
 })

@@ -8,10 +8,10 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const helmet = require('helmet')
 const socketIO = require('socket.io')
-
-// local imports
-// const { connectToDB } = require('./database')
-// const BaseRoute = require('./routes')
+const { generateMessage } = require('./utils/message')
+    // local imports
+    // const { connectToDB } = require('./database')
+    // const BaseRoute = require('./routes')
 const publicPath = path.join(__dirname, '../public')
 
 const app = express()
@@ -32,32 +32,27 @@ app.use(express.static(publicPath))
 io.on('connection', client => {
     // client.on('event', data => { /* … */ });
     // client.on('event', data => { /* … */ });
-    client.on('new-user', ({ _id, email, username }) => {
+    client.on('newUser', ({ _id, email, username }, callback) => {
         const message = {
-                _id,
-                email,
-                username,
-                createdAt: new Date().getTime(),
-                message: '',
-                from: 'Admin'
-            }
-            // client.emit('newMessage', {
-            //     from: 'valentine@testing.com',
-            //     message: 'Hi!, we are testing socket.io',
-            //     createdAt: new Date().getTime()
-            // })
-        client.emit('welcome-user', {...message, message: 'Welcome to the Chat App' })
-        client.broadcast.emit('new-user-joined', {...message, message: 'New User Joined the Group' })
+            _id,
+            email,
+            username,
+            message: '',
+            from: 'Admin'
+        }
+        client.emit('welcome-user', generateMessage({...message, message: 'Welcome to the Chat App', to: username }))
+        client.broadcast.emit('new-user-joined', generateMessage({...message, message: 'New User Joined the Group' }))
+        callback()
     })
-    client.on('createMessage', data => {
+    client.on('createMessage', (data, callback) => {
             const message = {
                     from: data.from,
                     to: data.to,
-                    message: data.message,
-                    createdAt: new Date().getTime()
+                    message: data.message
                 }
                 // console.log(message)
-                // io.emit('newMessage', message)
+            io.emit('newMessage', generateMessage(message))
+            callback()
                 // client.broadcast.emit('newMessage', message)
         })
         // client.emit('newMessage', {
