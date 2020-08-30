@@ -11,6 +11,7 @@ function handleMessage(data) {
         from: data.from
     })
     $('#messages').append(html)
+    scrollToButton()
 }
 
 function handleLocationMessage(message) {
@@ -23,8 +24,30 @@ function handleLocationMessage(message) {
         from: message.from
     })
     $('#messages').append(html)
+    scrollToButton()
         // console.log('new-email', message)
 }
+
+
+function scrollToButton() {
+    // Selectors
+    var messages = $('#messages')
+    var newMessage = messages.children('li:last-child')
+        // Heights
+
+    var clientHeight = messages.prop('clientHeight')
+    var scrollTop = messages.prop('scrollTop')
+    var scrollHeight = messages.prop('scrollHeight')
+    var newMessageHeight = newMessage.innerHeight()
+    var penUltimateMessageHeight = newMessage.prev().innerHeight()
+
+    if (clientHeight + scrollTop + newMessageHeight + penUltimateMessageHeight >= scrollHeight) {
+        messages.scrollTop(scrollHeight)
+    }
+
+}
+
+
 socket.on('connect', function() {
     console.log('Connected to Server')
         // socket.emit('createMessage', {
