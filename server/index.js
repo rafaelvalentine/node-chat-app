@@ -52,7 +52,7 @@ io.on('connection', client => {
             }
             // console.log(message)
         io.emit('newMessage', generateMessage(message))
-        callback(null, 'this is from the server!')
+        callback(null, '')
             // client.broadcast.emit('newMessage', message)
     })
     client.on('current_location-message', (coords) => {
