@@ -1,21 +1,29 @@
+// const mustasche = require("./libs/mustasche")
+
 var socket = io()
 
 function handleMessage(data) {
     const timestamp = moment(data.createdAt).format('H:mm')
-    var li = $('<li></li>').text(`${data.from}: ${timestamp} ${data.message}`)
-    $('#messages').append(li)
-    console.log('new-email', data)
+    var template = $('#message-template').html()
+    var html = Mustache.render(template, {
+        text: data.message,
+        timestamp,
+        from: data.from
+    })
+    $('#messages').append(html)
 }
 
 function handleLocationMessage(message) {
     const timestamp = moment(message.createdAt).format('H:mm')
-    var li = $('<li></li>')
-    var a = $('<a target="_blank"> My Current Location</a>')
-    li.text(`${message.from} ${timestamp}: `)
-    a.attr('href', message.url)
-    li.append(a)
-    $('#messages').append(li)
-    console.log('new-email', message)
+
+    var template = $('#location-message-template').html()
+    var html = Mustache.render(template, {
+        url: message.url,
+        timestamp,
+        from: message.from
+    })
+    $('#messages').append(html)
+        // console.log('new-email', message)
 }
 socket.on('connect', function() {
     console.log('Connected to Server')
