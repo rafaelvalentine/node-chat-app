@@ -8,7 +8,7 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const helmet = require('helmet')
 const socketIO = require('socket.io')
-const { generateMessage } = require('./utils/message')
+const { generateMessage, generateLocationMessage } = require('./utils/message')
     // local imports
     // const { connectToDB } = require('./database')
     // const BaseRoute = require('./routes')
@@ -42,24 +42,23 @@ io.on('connection', client => {
         }
         client.emit('welcome_user', generateMessage({...message, message: 'Welcome to the Chat App', to: username }))
         client.broadcast.emit('new_user_joined', generateMessage({...message, message: 'New User Joined the Group' }))
-        callback('this is from the server!')
+        callback(null, 'this is from the server!')
     })
     client.on('createMessage', (data, callback) => {
-            const message = {
-                    from: data.from,
-                    to: data.to,
-                    message: data.message
-                }
-                // console.log(message)
-            io.emit('newMessage', generateMessage(message))
-            callback('this is from the server!')
-                // client.broadcast.emit('newMessage', message)
-        })
-        // client.emit('newMessage', {
-        //     from: 'valentine@testing.com',
-        //     message: 'Hi!, we are testing socket.io',
-        //     createdAt: new Date().getTime()
-        // })
+        const message = {
+                from: data.from,
+                to: data.to,
+                message: data.message
+            }
+            // console.log(message)
+        io.emit('newMessage', generateMessage(message))
+        callback(null, 'this is from the server!')
+            // client.broadcast.emit('newMessage', message)
+    })
+    client.on('current_location-message', (coords) => {
+        console.log(coords)
+        io.emit('newLocationMessage', generateLocationMessage('User', 'all', coords))
+    })
     client.on('disconnect', () => {
         console.log('Disconnected from Client')
     })
