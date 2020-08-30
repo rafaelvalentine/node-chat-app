@@ -1,15 +1,17 @@
 var socket = io()
 
 function handleMessage(data) {
-    var li = $('<li></li>').text(`${data.from}: ${data.message}`)
+    const timestamp = moment(data.createdAt).format('H:mm')
+    var li = $('<li></li>').text(`${data.from}: ${timestamp} ${data.message}`)
     $('#messages').append(li)
     console.log('new-email', data)
 }
 
 function handleLocationMessage(message) {
-    var li = $('<li></li>').text(`${message.from}: ${message.url}`)
+    const timestamp = moment(message.createdAt).format('H:mm')
+    var li = $('<li></li>')
     var a = $('<a target="_blank"> My Current Location</a>')
-    li.text(`${message.from}: `)
+    li.text(`${message.from} ${timestamp}: `)
     a.attr('href', message.url)
     li.append(a)
     $('#messages').append(li)

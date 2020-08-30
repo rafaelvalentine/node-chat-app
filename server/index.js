@@ -56,7 +56,6 @@ io.on('connection', client => {
             // client.broadcast.emit('newMessage', message)
     })
     client.on('current_location-message', (coords) => {
-        console.log(coords)
         io.emit('newLocationMessage', generateLocationMessage('User', 'all', coords))
     })
     client.on('disconnect', () => {
