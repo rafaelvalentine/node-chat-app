@@ -9,6 +9,9 @@ const morgan = require('morgan')
 const helmet = require('helmet')
 const socketIO = require('socket.io')
 const { generateMessage, generateLocationMessage } = require('./utils/message')
+const { isValidString } = require('./utils/validation')
+const { Users } = require('./utils/users')
+const users = new Users()
     // local imports
     // const { connectToDB } = require('./database')
     // const BaseRoute = require('./routes')
@@ -32,7 +35,7 @@ app.use(express.static(publicPath))
 io.on('connection', client => {
     // client.on('event', data => { /* … */ });
     // client.on('event', data => { /* … */ });
-    client.on('newUser', ({ _id, email, username }, callback) => {
+    client.on('newUser', ({ _id, email, username, room }, callback) => {
         const message = {
             _id,
             email,
@@ -40,9 +43,19 @@ io.on('connection', client => {
             message: '',
             from: 'Admin'
         }
+
+        if (!(isValidString(username)) || !(isValidString(room))) {
+            callback('invalid username/room identity')
+            return
+        }
+
+        client.join(room)
+        users.removeUser(client.id)
+        users.addUser(client.id, username, room)
+        io.to(room).emit('updateUserList', users.getUserList(room))
         client.emit('welcome_user', generateMessage({...message, message: 'Welcome to the Chat App', to: username }))
-        client.broadcast.emit('new_user_joined', generateMessage({...message, message: 'New User Joined the Group' }))
-        callback(null, 'this is from the server!')
+        client.broadcast.to(room).emit('new_user_joined', generateMessage({...message, message: `${username} Joined the Group` }))
+        callback(null, 'Successfully Joined Room!!')
     })
     client.on('createMessage', (data, callback) => {
         const message = {
@@ -59,6 +72,11 @@ io.on('connection', client => {
         io.emit('newLocationMessage', generateLocationMessage('User', 'all', coords))
     })
     client.on('disconnect', () => {
+        const user = users.removeUser(client.id)
+        if (user) {
+            io.to(user.room).emit('updateUserList', users.getUserList())
+            io.to(user.room).emit('newMessage', generateMessage({ from: 'Admin', message: `${user.username} has left the room` }))
+        }
         console.log('Disconnected from Client')
     })
     console.log('New User Connected')

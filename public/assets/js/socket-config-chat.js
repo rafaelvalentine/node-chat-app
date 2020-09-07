@@ -1,5 +1,3 @@
-// const mustasche = require("./libs/mustasche")
-
 var socket = io()
 
 function handleMessage(data) {
@@ -25,9 +23,7 @@ function handleLocationMessage(message) {
     })
     $('#messages').append(html)
     scrollToButton()
-        // console.log('new-email', message)
 }
-
 
 function scrollToButton() {
     // Selectors
@@ -44,25 +40,40 @@ function scrollToButton() {
     if (clientHeight + scrollTop + newMessageHeight + penUltimateMessageHeight >= scrollHeight) {
         messages.scrollTop(scrollHeight)
     }
-
 }
 
+function handleUserList(users) {
+    const ol = $('<ol></ol>')
 
+    users.forEach(user => {
+        ol.append($('<li></li>').text(user))
+    });
+
+    $('#users').html(ol)
+}
 socket.on('connect', function() {
-    console.log('Connected to Server')
-        // socket.emit('createMessage', {
-        //     to: 'valentine@client.io',
-        //     message: 'I received your message',
-        // })
-})
-socket.emit('newUser', message, function(err, data) {
-    console.log('Admin Acknowledge!', data)
+    var params = $.deparam(window.location.search)
+
+    // socket.emit('join', params, function(err, result){
+    //     if (err) {
+    //         return
+    //     }
+    // })
+    socket.emit('newUser', {...message, ...params }, function(err, data) {
+        if (err) {
+            alert(err)
+            window.location.href = '/'
+            return
+        }
+        console.log('No error')
+    })
 })
 
 socket.on('newMessage', handleMessage)
 socket.on('welcome_user', handleMessage)
 socket.on('new_user_joined', handleMessage)
 socket.on('newLocationMessage', handleLocationMessage)
+socket.on('updateUserList', handleUserList)
 socket.on('event', function(data) {})
 socket.on('disconnect', function() {
     console.log('Disconnected from Server')

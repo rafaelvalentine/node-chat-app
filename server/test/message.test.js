@@ -1,4 +1,3 @@
-const { expectCt } = require('helmet')
 const expect = require('expect')
 const { generateMessage, generateLocationMessage } = require('../utils/message')
 
