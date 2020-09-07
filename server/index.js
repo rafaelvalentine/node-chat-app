@@ -58,18 +58,25 @@ io.on('connection', client => {
         callback(null, 'Successfully Joined Room!!')
     })
     client.on('createMessage', (data, callback) => {
-        const message = {
-                from: data.from,
-                to: data.to,
-                message: data.message
-            }
-            // console.log(message)
-        io.emit('newMessage', generateMessage(message))
-        callback(null, '')
-            // client.broadcast.emit('newMessage', message)
+        const user = users.getUser(client.id)
+        if (user && isValidString(data.message)) {
+            const message = {
+                    from: user.username,
+                    to: data.to,
+                    message: data.message
+                }
+                // console.log(message)
+            io.to(user.room).emit('newMessage', generateMessage(message))
+            callback(null, '')
+        }
+
+        // client.broadcast.emit('newMessage', message)
     })
     client.on('current_location-message', (coords) => {
-        io.emit('newLocationMessage', generateLocationMessage('User', 'all', coords))
+        const user = users.getUser(client.id)
+        if (user) {
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.username, 'all', coords))
+        }
     })
     client.on('disconnect', () => {
         const user = users.removeUser(client.id)

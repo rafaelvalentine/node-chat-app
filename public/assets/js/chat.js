@@ -1,16 +1,16 @@
 var message = {
     _id: Math.random(),
-    email: 'valentine@client.io',
-    username: 'rafaelvalentine'
+    email: '',
+    username: ''
 }
 var messageTextBox = $('#message-form [name=message]')
 $('#message-form').on('submit', function(e) {
     e.preventDefault()
     socket.emit('createMessage', {
         ...message,
-        from: message.username,
-        to: 'User zero 1 Zero',
-        message: messageTextBox.val() || 'Hello!'
+        from: '',
+        to: '',
+        message: messageTextBox.val()
     }, function(err, data) {
         if (err) return alert(err)
         console.log('Admin Acknowledge!', data)
